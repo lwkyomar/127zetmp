@@ -265,23 +265,39 @@ export function usePresence({ identity, sharing, coordinates, updatedAt }: UsePr
     return () => window.clearInterval(id)
   }, [status, identityId, publishCurrent])
 
-  // Recovery: refresh presence and re-announce when we come back online or the
-  // tab regains focus. Supabase reconnects the socket on its own.
+  // Recovery + page lifecycle. A background tab is throttled, then may be
+  // frozen, so we push the latest position on the way out (visibilitychange →
+  // hidden, pagehide, freeze) and re-announce whenever we come back (visible,
+  // focus, online, pageshow, resume). Supabase reconnects the socket on its own;
+  // these calls make sure the freshest position reaches the server around those
+  // transitions even when this tab is not the one in front.
   useEffect(() => {
     if (!identityId) return
-    const refresh = () => publishCurrent(true)
-    const onVisibility = () => {
-      if (document.visibilityState === 'visible') refresh()
-    }
+    const republish = () => publishCurrent(true)
+    // Flush when hidden and refresh when visible again — the same call is safe
+    // either way and the socket may have dropped while we were away.
+    const onVisibility = () => republish()
 
-    window.addEventListener('online', refresh)
-    window.addEventListener('focus', refresh)
+    window.addEventListener('online', republish)
+    window.addEventListener('focus', republish)
+    window.addEventListener('pageshow', republish)
+    window.addEventListener('pagehide', republish)
     document.addEventListener('visibilitychange', onVisibility)
 
+    // 'freeze'/'resume' are Page Lifecycle events, not part of the DOM lib's
+    // event maps; use the base EventTarget surface so the names type-check.
+    const lifecycle: EventTarget = document
+    lifecycle.addEventListener('freeze', republish)
+    lifecycle.addEventListener('resume', republish)
+
     return () => {
-      window.removeEventListener('online', refresh)
-      window.removeEventListener('focus', refresh)
+      window.removeEventListener('online', republish)
+      window.removeEventListener('focus', republish)
+      window.removeEventListener('pageshow', republish)
+      window.removeEventListener('pagehide', republish)
       document.removeEventListener('visibilitychange', onVisibility)
+      lifecycle.removeEventListener('freeze', republish)
+      lifecycle.removeEventListener('resume', republish)
     }
   }, [identityId, publishCurrent])
 

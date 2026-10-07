@@ -9,8 +9,9 @@ server of your own to run.
   key required).
 - **Realtime:** Supabase Realtime (Broadcast + Presence). No database tables or
   SQL are required.
-- **Location:** `navigator.geolocation.watchPosition()` with automatic recovery
-  when the tab is backgrounded or the network drops.
+- **Location:** `navigator.geolocation.watchPosition()` with a watchdog and Page
+  Lifecycle recovery, so it keeps updating in a background tab as far as the
+  browser allows.
 - **Access:** a single shared group password on the entry screen.
 
 ---
@@ -80,9 +81,19 @@ workflow passes no `--base` flag.
 - A heartbeat re-broadcasts the last known position every 15 seconds so that a
   friend who joins later (or comes back after losing connection) still sees
   everyone, even when nobody is moving.
-- The watcher restarts automatically when the tab becomes visible again, regains
-  focus, or the network returns, so tracking keeps working in background tabs as
-  far as the browser allows.
+- A watchdog restarts the watcher if fixes stop arriving, and the watcher is
+  restarted whenever the tab becomes visible again, regains focus, the network
+  returns, or the page is restored/resumed. The latest position is flushed when
+  the page is hidden or frozen and re-announced when it comes back, so tracking
+  keeps working in a background tab as far as the browser allows.
+- While sharing, a screen wake lock is held so a phone left open (but untouched)
+  does not fall asleep and stop tracking.
+
+> **Background limits.** A web page cannot keep getting location once the browser
+> fully suspends or freezes it — for example when the phone screen is off, the
+> browser app is closed, or the OS puts the tab to sleep. On desktop Chrome an
+> unfocused background tab normally keeps updating; for true always-on tracking a
+> native app is required. Keep the tab open and, on mobile, the screen on.
 
 ## Changing the password
 
