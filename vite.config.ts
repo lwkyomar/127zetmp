@@ -2,18 +2,18 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 /*
- * GitHub Pages base path.
+ * Relative base path.
  *
- * The site is a GitHub Pages *project* page, so it is served from
- * https://<username>.github.io/<repository>/ — the base must match the repo
- * name, otherwise all assets 404 on the deployed site.
+ * Using './' makes every asset reference relative, so the same build works no
+ * matter where GitHub Pages serves it from:
+ *   - a user/org page at the domain root   (https://<user>.github.io/)
+ *   - a project page in a sub-path          (https://<user>.github.io/<repo>/)
  *
- * The deploy workflow overrides this automatically with
- * `vite build --base=/<repo-name>/`, so you normally do not need to touch it.
- * Change it to '/' only if you deploy to a user/org page (username.github.io).
+ * This removes any dependence on the repository name. The deploy workflow does
+ * not override it.
  */
 export default defineConfig({
-  base: '/KhazariumTracker/',
+  base: './',
   plugins: [react()],
   build: {
     outDir: 'dist',

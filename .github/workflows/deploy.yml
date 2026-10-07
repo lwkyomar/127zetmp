@@ -34,9 +34,9 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-        # The base path must match the repository name for a GitHub Pages
-        # project site (https://<user>.github.io/<repo>/).
-        run: npm run build -- --base=/${{ github.event.repository.name }}/
+        # vite.config.ts uses a relative base ('./'), so the build works for both
+        # user pages (root) and project pages (sub-path) without extra flags.
+        run: npm run build
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
