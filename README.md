@@ -5,7 +5,8 @@ location on one map. It is a static site (React + TypeScript + Vite, built with
 Leaflet and Supabase Realtime) that deploys to **GitHub Pages** — there is no
 server of your own to run.
 
-- **Map:** Leaflet + OpenStreetMap data (CARTO dark basemap).
+- **Map:** Leaflet + the Esri “World Dark Gray Canvas” basemap (dark, and no API
+  key required).
 - **Realtime:** Supabase Realtime (Broadcast + Presence). No database tables or
   SQL are required.
 - **Location:** `navigator.geolocation.watchPosition()` with automatic recovery

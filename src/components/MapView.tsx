@@ -87,12 +87,29 @@ export function MapView({ self, selfSharing, friends, now, focusSignal }: MapVie
       worldCopyJump: true,
     })
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-      subdomains: 'abcd',
-      maxZoom: 20,
-      attribution:
-        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    }).addTo(map)
+    // Esri "World Dark Gray Canvas" basemap: a dark palette that matches the
+    // app, with no API key required. (CARTO's public basemaps now return tiles
+    // stamped with an "API KEY REQUIRED" watermark, which used to show up
+    // instead of the map.)
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 20,
+        maxNativeZoom: 19,
+        attribution:
+          'Tiles &copy; <a href="https://www.esri.com/">Esri</a> &mdash; Esri, HERE, Garmin, &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      },
+    ).addTo(map)
+
+    // Place-name labels drawn on top of the basemap (the base layer has none).
+    L.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}',
+      {
+        maxZoom: 20,
+        maxNativeZoom: 19,
+        // Attribution lives on the base layer above.
+      },
+    ).addTo(map)
 
     L.control.zoom({ position: 'bottomright' }).addTo(map)
     mapRef.current = map
