@@ -59,14 +59,11 @@ different one — see "Changing the password" below.
 4. Push to `main` (or run the "Deploy to GitHub Pages" workflow manually). The
    site will be published at `https://<username>.github.io/<repository>/`.
 
-The workflow sets the Vite `base` path to `/<repository>/` automatically, so the
-deployed site loads its assets correctly. The default base in `vite.config.ts`
-(`/KhazariumTracker/`) only matters for local `npm run build -- --mode` checks —
-change it if your repository has a different name.
-
-> Deploying to a **user/org page** (`https://<username>.github.io/`)? Set
-> `base` to `'/'` in `vite.config.ts` and remove the `--base=...` override in
-> the workflow.
+`vite.config.ts` uses a **relative** base path (`base: './'`), so the same build
+works no matter where Pages serves it from — a project page
+(`https://<username>.github.io/<repository>/`) or a user/org page at the domain
+root (`https://<username>.github.io/`). No repository name is hard-coded and the
+workflow passes no `--base` flag.
 
 ---
 
